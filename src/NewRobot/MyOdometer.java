@@ -5,15 +5,17 @@ public class MyOdometer {
 	private double dist = 0.0;
 	private boolean is_racing;
 	private boolean finished;
+
 	
 	public MyOdometer (String name, Robot r) {
-		this.robot =r;
+		this.robot = r;
 		this.is_racing = false;
 		this.finished = false;
 	}
 	
-	public void race() {
+	public void getRaceDistance() {
 		this.is_racing = true;
+		//dist += getDistance()
 	}
 	
 	public void endRace() {
@@ -22,7 +24,7 @@ public class MyOdometer {
 	}
 	
 	public double getDistance(int x1, int x2, int y1, int y2) {
-        return  Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 	}
 	
 	public String totalDist() {
