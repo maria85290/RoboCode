@@ -44,8 +44,8 @@ public class MyOdometer extends Condition{
 	}
 	
 	public void endRace() {
-		this.finished = true;
-		this.is_racing = false;
+		finished = true;
+		is_racing = false;
 	}
 	
 	public double getDistance(double x, double newX, double y, double newY) {
@@ -54,11 +54,14 @@ public class MyOdometer extends Condition{
 	
 	public String totalDist() {
 		endRace();
-		return "Race Distance" + (new DecimalFormat("#.##")).format(dist) + "pixels";
+		return "Race Distance: " + (new DecimalFormat("#.##")).format(dist) + "pixels";
 	}
 
 	@Override
 	public boolean test() {
+		//this.robot.setDebugProperty("Racing", String.valueOf(this.is_racing));
+        //this.robot.setDebugProperty("RoundFinished", String.valueOf(this.finished));
+        //return robot.getTime()!=0;
 		return false;
 	}
 }
