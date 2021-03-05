@@ -17,8 +17,7 @@ public class MyRobot extends AdvancedRobot{
 		addCustomEvent(odometer);
 
 		//setTurnGunRight(calcAngle(18,18));
-		turnRight(calcAngle(18,18));
-		ahead(100);
+		goTo(18,18);
 	}
 
 	public void onCustomEvent (CustomEvent ev) {
