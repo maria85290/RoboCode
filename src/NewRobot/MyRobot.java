@@ -30,8 +30,9 @@ public class MyRobot extends AdvancedRobot{
 	}
 
 	private void goTo(double x, double y){
-		x = getX();
-		y = getY();
+
+		x -= getX();
+		y -= getY();
 
 		/* Calculate the angle to the target position */
 		double angleToTarget = Math.atan2(x, y);
@@ -49,6 +50,7 @@ public class MyRobot extends AdvancedRobot{
 		/* This is a simple method of performing set front as back */
 		double turnAngle = Math.atan(Math.tan(targetAngle));
 		setTurnRightRadians(turnAngle);
+		
 		if(targetAngle == turnAngle) {
 			setAhead(distance);
 		} else {
@@ -62,22 +64,6 @@ public class MyRobot extends AdvancedRobot{
 
 	}
 
-	private double calcAngle(double destX, double destY) {
-		//Reta para obter o angulo
-		double distX = destX - actualX;
-		double distY = destY - actualY;
 
-		//Angulo da reta 90º até à reta que vai da origem do robo até ao ponto(18,18)
-		double tempAngle = Math.atan2(distX, distY);
-
-		System.out.println("Atan angle: " + tempAngle);
-		System.out.println("Heading: " + this.getHeading());
-
-		//Subtração entre temp angle e o angulo da frente do robo
-		double rotationAngle = Utils.normalRelativeAngle(tempAngle- this.getHeading());
-
-		System.out.println("Rotation: " + rotationAngle);
-		return rotationAngle;
-	}
 
 }
