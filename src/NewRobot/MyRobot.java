@@ -8,29 +8,66 @@ public class MyRobot extends AdvancedRobot{
 	private Odometer standardOdometer = new Odometer ("isRacing", this);
 	private MyOdometer odometer = new MyOdometer("isRacing",this);
 	private boolean start = false;
+	private boolean isRacing = false;
+	private boolean scanningObject = false;
+	private int turns = 0;
 
-	double actualY;
-	double actualX;
+	//double actualY;
+	//double actualX;
 
 	public void run() {
 
+//        setAdjustGunForRobotTurn(true);
+//        setAdjustRadarForGunTurn(true);
+
 		addCustomEvent(standardOdometer);
-		addCustomEvent(odometer);
+		addCustomEvent(this.odometer);
 
-		if (getHeading() >= 45){
-			turnRight(225 - 180 -getHeading());
+		// para o colocar na origem
+		turnRight(225 - getHeading());
+
+
+		while(!(this.getX() == 18 && this.getY() == 18)){
+			goTo(18 ,18);
 		}
-		else{
-			turnRight(225 - 180 -getHeading());
+
+		//Make time so he gets to the starting point
+		for (int i = 0; i < 90; i++) {
+			doNothing(); // or perhaps scan();
 		}
 
-		goTo(18,18);
+		this.turnLeft(this.getHeading());
 
-		//turnRight(360-getHeading());
-
-		this.start = true;
+		while(true){
+			//
+			//this.turnLeft(this.getHeading());
+			turnRight(1);
+			this.scanningObject = true;
+			//setTurnRadarRight(360);
+			//execute();
+			if(this.turns >= 3) {
+				System.out.println("Just passed the 3rd robot");
+				this.scanningObject = false;
+				goTo(18,18);
+			}
+		}
 
 	}
+	public void onScannedRobot(ScannedRobotEvent e) {
+		super.onScannedRobot(e);
+
+		if (scanningObject){
+			turnLeft(e.getBearing()*1.5);
+			ahead(e.getDistance()+18);
+			setTurnRight(60);
+			ahead(40);
+			this.turns++;
+
+
+		}
+	}
+
+
 
 	public void onCustomEvent (CustomEvent ev) {
 		Condition cd = ev.getCondition();
@@ -38,6 +75,12 @@ public class MyRobot extends AdvancedRobot{
 			this.odometer.getRaceDistance();
 		if (cd.getName().equals("isRacing"))
 			this.standardOdometer.getRaceDistance();
+	}
+
+	private void goToStartingPosition(double x, double y){
+		goTo(x ,y);
+
+
 	}
 
 	private void goTo(double x, double y){
@@ -54,8 +97,8 @@ public class MyRobot extends AdvancedRobot{
 
 		/* This is a simple method of performing set front as back */
 		double turnAngle = Math.atan(Math.tan(targetAngle));
-
-		setTurnRightRadians(turnAngle);
+		System.out.println("START: " + this.start);
+		turnRightRadians(turnAngle);
 	/*
 	Fazer isso é o mesmo que fazer o passo de baixo.
 		if (targetAngle<Math.PI/2 && -Math.PI/2<targetAngle){
@@ -68,9 +111,9 @@ public class MyRobot extends AdvancedRobot{
 	 */
 
 		if(targetAngle == turnAngle) {
-			setAhead(distance);
+			ahead(distance);
 		} else {
-			setBack(distance);
+			back(distance);
 		}
 
 
