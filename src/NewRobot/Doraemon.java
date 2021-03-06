@@ -19,9 +19,6 @@ public class Doraemon extends AdvancedRobot{
 		addCustomEvent(standardOdometer);
 		addCustomEvent(this.odometer);
 
-		// para o colocar na origem
-		turnRight(225 - getHeading());
-
 		while(!(this.getX() == 18 && this.getY() == 18)){
 			goTo(18 ,18);
 		}
