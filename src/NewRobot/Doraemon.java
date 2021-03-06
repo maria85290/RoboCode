@@ -1,4 +1,6 @@
 package NewRobot;
+import java.awt.Color;
+
 import robocode.*;
 import robocode.util.Utils;
 import standardOdometer.Odometer;
@@ -13,6 +15,7 @@ public class Doraemon extends AdvancedRobot{
 
 
 	public void run() {
+		setColors(Color.yellow,Color.white,Color.red);
 		addCustomEvent(standardOdometer);
 		addCustomEvent(this.odometer);
 
