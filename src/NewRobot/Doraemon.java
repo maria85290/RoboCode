@@ -4,7 +4,7 @@ import robocode.util.Utils;
 import standardOdometer.Odometer;
 
 
-public class MyRobot extends AdvancedRobot{
+public class Doraemon extends AdvancedRobot{
 	private Odometer standardOdometer = new Odometer ("isRacing", this);
 	private MyOdometer odometer = new MyOdometer("Racing",this);
 	private boolean start = true;
