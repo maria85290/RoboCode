@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 import robocode.Condition;
 import robocode.Robot;
 
-public class MyOdometer extends Condition{
+public class MyOdometer extends Condition {
 	public Robot robot;
 	private double dist = 0.0;
 	private boolean is_racing;
@@ -31,7 +31,7 @@ public class MyOdometer extends Condition{
 		this.is_racing = true;
 	}
 	
-	public void getRaceDistance() {
+	public void getRobotDistance() {
 		if (is_racing) {
 			newX = robot.getX();
 			newY = robot.getY();
@@ -40,7 +40,7 @@ public class MyOdometer extends Condition{
 			
 			x = newX;
 			y = newY;
-		}
+		}	
 	}
 	
 	public void endRace() {
@@ -59,9 +59,9 @@ public class MyOdometer extends Condition{
 
 	@Override
 	public boolean test() {
-		//this.robot.setDebugProperty("Racing", String.valueOf(this.is_racing));
-        //this.robot.setDebugProperty("RoundFinished", String.valueOf(this.finished));
-        //return robot.getTime()!=0;
-		return false;
+		this.robot.setDebugProperty("Racing", String.valueOf(this.is_racing));
+        this.robot.setDebugProperty("RoundFinished", String.valueOf(this.finished));
+		this.robot.setDebugProperty("Distance",(new DecimalFormat("#.##")).format(dist));
+        return robot.getTime()!=0;
 	}
 }
