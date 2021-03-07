@@ -16,7 +16,6 @@ public class Doraemon extends AdvancedRobot{
 
 	public void run() {
 		setColors(Color.yellow,Color.white,Color.red);
-		addCustomEvent(standardOdometer);
 		addCustomEvent(this.odometer);
 
 		while(!(this.getX() == 18 && this.getY() == 18)){
@@ -25,9 +24,10 @@ public class Doraemon extends AdvancedRobot{
 
 		//Make time so he gets to the starting point
 		for (int i = 0; i < 100; i++) {
-			doNothing(); // or perhaps scan();
+			doNothing(); 
 		}
 		
+		addCustomEvent(standardOdometer);
 		odometer.startRace();
 		this.turnLeft(this.getHeading());
 
