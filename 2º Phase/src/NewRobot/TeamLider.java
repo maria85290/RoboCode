@@ -12,6 +12,7 @@ public class TeamLider extends TeamRobot {
 	boolean peek; // Don't turn if there's a robot there
 	double moveAmount; // How much to move
 	
+	
 		/**
 		 * run:  Leader's default behavior
 		 */
@@ -31,6 +32,12 @@ public class TeamLider extends TeamRobot {
 			setRadarColor(c.radarColor);
 			setScanColor(c.scanColor);
 			setBulletColor(c.bulletColor);
+
+			try {
+				// Send RobotColors object to our entire team
+				broadcastMessage(c);
+			} catch (IOException ignored) {}
+			
 			
 			// Initialize moveAmount to the maximum possible for this battlefield.
 			moveAmount = Math.max(getBattleFieldWidth(), getBattleFieldHeight());
@@ -48,12 +55,6 @@ public class TeamLider extends TeamRobot {
 			turnGunRight(90);
 			turnRight(90);
 
-			try {
-				// Send RobotColors object to our entire team
-				broadcastMessage(c);
-			} catch (IOException ignored) {}
-			// Normal behavior
-			
 			while (true) {
 				peek = true;
 				// Move up the wall
@@ -74,35 +75,27 @@ public class TeamLider extends TeamRobot {
 		public void onScannedRobot(ScannedRobotEvent e) {
 			
 			// Don't fire on teammates
-			if (isTeammate(e.getName())) {
-				return;
-			}
-			
-			
-			// Calculate enemy bearing
-			double enemyBearing = this.getHeading() + e.getBearing();
-			// Calculate enemy's position
-			double enemyX = getX() + e.getDistance() * Math.sin(Math.toRadians(enemyBearing));
-			double enemyY = getY() + e.getDistance() * Math.cos(Math.toRadians(enemyBearing));
-			
-		
-			try {
-				// Send enemy position to teammates
-				broadcastMessage(new Enemy(e.getName(),enemyX, enemyY));
-				// Note that scan is called automatically when the robot is moving.
-				// By calling it manually here, we make sure we generate another scan event if there's a robot on the next
-				// wall, so that we do not start moving up it until it's gone.
+			if (!isTeammate(e.getName())) {
 				
-			} catch (IOException ex) {
-				out.println("Unable to send order: ");
-				ex.printStackTrace(out);
-			}
+				double enemyBearing = this.getHeading() + e.getBearing();
+				// Calculate enemy's position
+				double enemyX = getX() + e.getDistance() * Math.sin(Math.toRadians(enemyBearing));
+				double enemyY = getY() + e.getDistance() * Math.cos(Math.toRadians(enemyBearing));
+				
 			
-			fire(2);
-			if (peek) {
-				scan();
+				try {
+					// Send enemy position to teammates
+					broadcastMessage(new Enemy(e.getName(),enemyX, enemyY, e.getEnergy(),e.getBearing(), e.getDistance()));
+					// Note that scan is called automatically when the robot is moving.
+					// By calling it manually here, we make sure we generate another scan event if there's a robot on the next
+					// wall, so that we do not start moving up it until it's gone.
+					
+				} catch (IOException ex) {
+					out.println("Unable to send order: ");
+					ex.printStackTrace(out); 
+				}
 			}
-			
+					
 		}
 
 		/**
