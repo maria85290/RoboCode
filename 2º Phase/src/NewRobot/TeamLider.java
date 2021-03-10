@@ -64,7 +64,7 @@ public class TeamLider extends TeamRobot {
 				// Turn to the next wall
 				turnRight(90);
 				
-				
+				turnRadarRight(1000);
 			}
 		}
 
@@ -88,7 +88,7 @@ public class TeamLider extends TeamRobot {
 		
 			try {
 				// Send enemy position to teammates
-				broadcastMessage(new Point(enemyX, enemyY));
+				broadcastMessage(new Enemy(e.getName(),enemyX, enemyY));
 				// Note that scan is called automatically when the robot is moving.
 				// By calling it manually here, we make sure we generate another scan event if there's a robot on the next
 				// wall, so that we do not start moving up it until it's gone.
