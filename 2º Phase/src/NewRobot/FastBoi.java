@@ -13,7 +13,8 @@ import robocode.TurnCompleteCondition;
 
 public class FastBoi extends TeamRobot {
 	boolean movingForward;
-	private Map<String,Boolean> isEnemy = new HashMap<>();
+	private Map<String, Boolean> isEnemy = new HashMap<>();
+	String[] teammates;
 
 	/**
 	 * run: Crazy's main run function
@@ -49,39 +50,36 @@ public class FastBoi extends TeamRobot {
 	}
 
 	public void onScannedRobot(ScannedRobotEvent e) {
-		if(!isTeammate(e.getName())) {
-			//System.out.println(e.getName() + " found enemy ");
-			setTurnRight(e.getBearing());
-			// if we've turned toward our enemy...
-			if (Math.abs(getTurnRemaining()) < 10) {
-				// move a little closer
-				if (e.getDistance() > 200) {
-					setAhead(e.getDistance() / 2);
-				}
-				// but not too close
-				if (e.getDistance() < 100) {
-					setBack(e.getDistance() * 2);
-				}
+
+		System.out.println(e.getName() + " found enemy ");
+		setTurnRight(e.getBearing());
+		// if we've turned toward our enemy...
+		if (Math.abs(getTurnRemaining()) < 10) {
+			// move a little closer
+			if (e.getDistance() > 200) {
+				setAhead(e.getDistance() / 2);
 			}
-			if (e.getEnergy() > 16) {
-				fire(3);
-			} else if (e.getEnergy() > 10) {
-				fire(2);
-			} else if (e.getEnergy() > 4) {
-				fire(1);
-			} else if (e.getEnergy() > 2) {
-				fire(.5);
-			} else if (e.getEnergy() > .4) {
-				fire(.1);
+			// but not too close
+			if (e.getDistance() < 100) {
+				setBack(e.getDistance() * 2);
 			}
-			// lock our radar onto our target
-			setTurnRadarRight(getHeading() - getRadarHeading() + e.getBearing());
-		} else { 		
-			setTurnRadarRight(1000);
 		}
+		if (e.getEnergy() > 16) {
+			fire(3);
+		} else if (e.getEnergy() > 10) {
+			fire(2);
+		} else if (e.getEnergy() > 4) {
+			fire(1);
+		} else if (e.getEnergy() > 2) {
+			fire(.5);
+		} else if (e.getEnergy() > .4) {
+			fire(.1);
+		}
+		// lock our radar onto our target
+		setTurnRadarRight(getHeading() - getRadarHeading() + e.getBearing());
 
 	}
-	
+
 	/**
 	 * onHitWall: Handle collision with wall.
 	 */
@@ -118,8 +116,7 @@ public class FastBoi extends TeamRobot {
 		if (e.getMessage() instanceof Enemy) {
 			Enemy p = (Enemy) e.getMessage();
 			isEnemy.put(p.getName(), true);
-			System.out.println("enemy: " + p.getName());
-		} // Set our colors		
+		} // Set our colors
 		else if (e.getMessage() instanceof RobotColors) {
 			RobotColors c = (RobotColors) e.getMessage();
 
