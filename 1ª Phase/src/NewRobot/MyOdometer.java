@@ -21,7 +21,7 @@ public class MyOdometer extends Condition {
 		this.is_racing = false;
 		this.finished = false;
 	}
-	
+
 	public void startRace() {
 		x = robot.getX();
 		y= robot.getY();
@@ -54,7 +54,7 @@ public class MyOdometer extends Condition {
 	
 	public String totalDist() {
 		endRace();
-		return "Race Distance: " + (new DecimalFormat("#.##")).format(dist) + "pixels";
+		return "Race Distance: " + (new DecimalFormat("#.##")).format(dist) + " pixels";
 	}
 
 	@Override

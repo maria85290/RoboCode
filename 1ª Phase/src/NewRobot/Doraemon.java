@@ -22,7 +22,7 @@ public class Doraemon extends AdvancedRobot{
 			goTo(18 ,18);
 		}
 
-		//Make time so he gets to the starting point
+		//Make time so the RockQuads get to the starting point
 		for (int i = 0; i < 100; i++) {
 			doNothing(); 
 		}
