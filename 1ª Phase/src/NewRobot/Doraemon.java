@@ -42,6 +42,7 @@ public class Doraemon extends AdvancedRobot{
 			}
 		}
 		System.out.println(this.odometer.totalDist());
+		System.out.println("Standard Odometer Distance: " + this.standardOdometer.getRaceDistance());
 	}
 	
 	public void onScannedRobot(ScannedRobotEvent e) {
