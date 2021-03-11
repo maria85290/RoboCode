@@ -5,6 +5,8 @@ import robocode.MessageEvent;
 import robocode.TeamRobot;
 import robocode.util.Utils;
 
+import java.awt.*;
+
 public class OurDroid extends TeamRobot implements Droid {
 
 	/**

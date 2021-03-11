@@ -5,17 +5,26 @@ import java.io.IOException;
 
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
+import robocode.MessageEvent;
 import robocode.TeamRobot;
 import robocode.util.Utils;
 
 public class NSYNC extends TeamRobot {
 	boolean peek; // Don't turn if there's a robot there
 	double moveAmount; // How much to move
+	private double offsetX;
+	private double offsetY;
+	private boolean pos1 = false;
+	private boolean pos2 = false;
+	private boolean pos3 = false;
+	private boolean pos4 = false;
 
-		/**
+	/**
 		 * run:  Leader's default behavior
 		 */
 		public void run() {
+			offsetX = getBattleFieldWidth() / 3;
+			offsetY = getBattleFieldHeight() / 3;
 			// Prepare RobotColors object
 			RobotColors c = new RobotColors();
 
@@ -43,16 +52,41 @@ public class NSYNC extends TeamRobot {
 				goTo(getBattleFieldWidth() / 2, getBattleFieldHeight() / 2);
 			}
 
-			// Ficar virado para baixo.
-			turnLeft(180);
+			//rotate robot to the south
+			double angleToTarget = Math.atan2(0,this.getY());
+
+			double targetAngle = angleToTarget - getHeadingRadians();
+
+			/* This is a simple method of performing set front as back */
+			double turnAngle = Math.atan(Math.tan(targetAngle));
+			turnRightRadians(turnAngle);
 
 			try {
 				double x = getX();
 				double y = getY();
 				double rotation = 30;
 
-
-				broadcastMessage(new DanceOrder(x,y,rotation));
+				String[] teammates = getTeammates();
+				int pos = 0;
+				for (String member : teammates) {
+					if (pos == 0) {
+						sendMessage(member, new DanceOrder(offsetX, offsetY,rotation));
+					}
+					else if (pos == 1) {
+						sendMessage(member, new DanceOrder(offsetX, offsetY * 2,rotation));
+					}
+					else if (pos == 2) {
+						sendMessage(member, new DanceOrder(offsetX * 2, offsetY * 2,rotation));
+					}
+					else {
+						sendMessage(member, new DanceOrder(offsetX * 2, offsetY,rotation));
+					}
+					pos++;
+				}
+				//wait for other the droids to get in their correct positions
+				for (int i = 0; i < 30; i++) {
+					doNothing();
+				}
 
 				//Dance like the win dance
 				for (int i = 0; i < 50; i++) {
@@ -92,6 +126,8 @@ public class NSYNC extends TeamRobot {
 			back(distance);
 		}
 	}
+
+
 
 		/**
 		 * onHitByBullet:  Turn perpendicular to bullet path

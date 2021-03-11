@@ -1,6 +1,8 @@
 package NewRobot;
 
-public class Position {
+import java.io.Serializable;
+
+public class Position implements Serializable {
     public double getX() {
         return x;
     }
