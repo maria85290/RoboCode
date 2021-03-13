@@ -14,6 +14,8 @@ public class NSYNC extends TeamRobot {
 	double moveAmount; // How much to move
 	private double offsetX;
 	private double offsetY;
+	private int msgReceived = 0;
+	private double rotationV = 30;
 	private boolean pos1 = false;
 	private boolean pos2 = false;
 	private boolean pos3 = false;
@@ -52,19 +54,19 @@ public class NSYNC extends TeamRobot {
 				goTo(getBattleFieldWidth() / 2, getBattleFieldHeight() / 2);
 			}
 
-			//rotate robot to the south
-			double angleToTarget = Math.atan2(0,this.getY());
-
-			double targetAngle = angleToTarget - getHeadingRadians();
-
-			/* This is a simple method of performing set front as back */
-			double turnAngle = Math.atan(Math.tan(targetAngle));
-			turnRightRadians(turnAngle);
+			double x = getX();
+			double y = getY();
+			double rotation = 30;
 
 			try {
-				double x = getX();
-				double y = getY();
-				double rotation = 30;
+
+
+				if (this.getHeading() > 180) {
+					this.turnRight(360 - this.getHeading() - rotation/2);
+				}
+				else {
+					this.turnLeft(this.getHeading() + rotation/2);
+				}
 
 				String[] teammates = getTeammates();
 				int pos = 0;
@@ -84,15 +86,21 @@ public class NSYNC extends TeamRobot {
 					pos++;
 				}
 				//wait for other the droids to get in their correct positions
-				for (int i = 0; i < 30; i++) {
+				for (int i = 0; i < 80; i++) {
 					doNothing();
 				}
 
-				//Dance like the win dance
-				for (int i = 0; i < 50; i++) {
-					turnRight(rotation);
-					turnLeft(rotation);
+				while(!(this.getX() == getBattleFieldWidth()/2 && this.getY() == getBattleFieldHeight()/2)) {
+					goTo(getBattleFieldWidth() / 2, getBattleFieldHeight() / 2);
 				}
+
+				if (this.getHeading() > 180) {
+					this.turnRight(360 - this.getHeading() - rotation/2);
+				}
+				else {
+					this.turnLeft(this.getHeading() + rotation/2);
+				}
+
 
 
 			} catch (IOException ex) {
@@ -102,6 +110,55 @@ public class NSYNC extends TeamRobot {
 
 		}
 
+	/**
+	 * onMessageReceived:  What to do when our leader sends a message
+	 */
+	public void onMessageReceived(MessageEvent e) {
+		// if robot has danced already, it is going to the next position
+		if (e.getMessage() instanceof DanceOrder) {
+			DanceOrder o = (DanceOrder) e.getMessage();
+			msgReceived++;
+			System.out.println(e.getSender() + " is ready! " + msgReceived);
+
+			if (msgReceived == 4) {
+					msgReceived = 0;
+					String[] teammates = getTeammates();
+					for (String member : teammates) {
+						try {
+							System.out.println("Sending to " + member);
+							sendMessage(member, o.getRotation());
+						} catch (IOException ioException) {
+							System.out.println("Here " + member);
+							ioException.printStackTrace();
+						}
+					}
+					dance(o.getRotation());
+
+			}
+
+
+		}
+		else if (e.getMessage().equals("ready")) {
+			msgReceived++;
+			System.out.println(e.getSender() + " is ready! " + msgReceived);
+
+			if (msgReceived == 4) {
+				msgReceived = 0;
+				String[] teammates = getTeammates();
+				for (String member : teammates) {
+					try {
+						System.out.println("Sending to " + member);
+						sendMessage(member, rotationV);
+					} catch (IOException ioException) {
+						System.out.println("Here " + member);
+						ioException.printStackTrace();
+					}
+				}
+				dance(rotationV);
+
+			}
+		}
+	}
 
 	private void goTo(double x, double y){
 
@@ -127,6 +184,14 @@ public class NSYNC extends TeamRobot {
 		}
 	}
 
+	public void dance(double rotation){
+		//Dance like the win dance
+		for (int i = 0; i < 10; i++) {
+			turnRight(rotation);
+			turnLeft(rotation);
+		}
+	}
+
 
 
 		/**
@@ -141,6 +206,7 @@ public class NSYNC extends TeamRobot {
 		 */
 		public void onHitRobot(HitRobotEvent e) {
 			// If he's in front of us, set back up a bit.
+			turnLeft(10);
 			if (e.getBearing() > -90 && e.getBearing() < 90) {
 				back(100);
 			} // else he's in back of us, so set ahead a bit.
