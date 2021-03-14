@@ -42,34 +42,33 @@ public class JustinTimb extends TeamRobot implements Droid {
             double danceAngle = o.getRotation();
 
 
-            while(this.getX() != o.getX() && this.getY() != o.getY()){
-                goTo(o.getX(), o.getY());
-            }
+                while (this.getX() != o.getX() && this.getY() != o.getY()) {
+                    goTo(o.getX(), o.getY());
+                }
 
-            if (this.getHeading() > 180) {
-                this.turnRight(360 - this.getHeading() - danceAngle/2);
-            }
-            else {
-                this.turnLeft(this.getHeading() + danceAngle/2);
-            }
+                if (this.getHeading() > 180) {
+                    this.turnRight(360 - this.getHeading() - danceAngle / 2);
+                } else {
+                    this.turnLeft(this.getHeading() + danceAngle / 2);
+                }
 
+                while (this.getX() != o.getX() && this.getY() != o.getY()) {
+                    goTo(o.getX(), o.getY());
+                }
 
-            while(this.getX() != o.getX() && this.getY() != o.getY()){
-                goTo(o.getX(), o.getY());
-            }
+                for (int j = 0; j < 20; j++) {
+                    doNothing();
+                }
 
-            for(int i = 0; i < 20; i++){
-                doNothing();
-            }
+                DanceOrder order = new DanceOrder(this.getX(), this.getY(), o.getRotation());
+                try {
+                    //inform team lider the this robot is ready to dance
+                    sendMessage("NewRobot.NSYNC", order);
 
-            DanceOrder order = new DanceOrder(this.getX(), this.getY(), o.getRotation());
-            try {
-                //inform team lider the this robot is ready to dance
-                sendMessage("NewRobot.NSYNC", order);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
 
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
 
 
 
@@ -111,28 +110,31 @@ public class JustinTimb extends TeamRobot implements Droid {
 
     public Position getNewPos(){
 
-        double x = Math.round(this.getX());
-        double y = Math.round(this.getY());
-        double roundedOffsetX = Math.round(offsetX);
-        double roundedOffsetY = Math.round(offsetY);
-        System.out.println("X: " + x);
-        System.out.println("Y: " + y);
-        System.out.println("offsetX: " + roundedOffsetX);
-        System.out.println("offsetY: " + roundedOffsetY);
-        System.out.println("offsetX2: " + roundedOffsetX * 2);
-        System.out.println("offsetY2: " + roundedOffsetY * 2);
+        double x = Math.floor(this.getX());
+        double y = Math.floor(this.getY());
+        double roundedOffsetX = Math.floor(offsetX);
+        double roundedOffsetY = Math.floor(offsetY);
 
         Position newPos = new Position();
 
         Position pos1 = new Position(roundedOffsetX, roundedOffsetY);
-        Position pos2 = new Position(getBattleFieldWidth() / 6, getBattleFieldHeight() / 2);
+        Position pos2 = new Position(Math.floor(getBattleFieldWidth() / 6), Math.floor(getBattleFieldHeight() / 2));
         Position pos3 = new Position(roundedOffsetX, roundedOffsetY * 2);
-        Position pos4 = new Position(getBattleFieldWidth() / 2, getBattleFieldHeight() * 5 / 6);
+        Position pos4 = new Position(Math.floor(getBattleFieldWidth() / 2), Math.floor(getBattleFieldHeight() * 5 / 6));
         Position pos5 = new Position(roundedOffsetX * 2, roundedOffsetY * 2);
-        Position pos6 = new Position(getBattleFieldWidth() * 5 / 6, getBattleFieldHeight() * 2);
+        Position pos6 = new Position(Math.floor(getBattleFieldWidth() * 5 / 6), Math.floor(getBattleFieldHeight() / 2));
         Position pos7 = new Position(roundedOffsetX * 2, roundedOffsetY);
-        Position pos78= new Position(getBattleFieldWidth() / 2, getBattleFieldHeight() / 6);
+        Position pos8 = new Position(Math.floor(getBattleFieldWidth() / 2), Math.floor(getBattleFieldHeight() / 6));
 
+        System.out.println("X: " + x);
+        System.out.println("Y: " + y);
+        System.out.println("pos6 x: " + pos6.getX());
+        System.out.println("pos6 y: " + pos6.getY());
+        System.out.println("offsetX: " + roundedOffsetX);
+        System.out.println("offsetY: " + roundedOffsetY);
+        System.out.println("offsetX2: " + roundedOffsetX * 2);
+        System.out.println("offsetY2: " + roundedOffsetY * 2);
+        /*
         if (x == roundedOffsetX && y == roundedOffsetY) {
             System.out.println("First pos");
             newPos.setX(this.getX());
@@ -154,7 +156,43 @@ public class JustinTimb extends TeamRobot implements Droid {
             System.out.println("Last pos");
             newPos.setX(getBattleFieldWidth() / 2);
             newPos.setY(getBattleFieldHeight() / 6);
+        }*/
+
+        if (x >= pos4.getX() - 20 && y >= pos4.getY() - 20) {
+            System.out.println("go to pos 5");
+            return pos5;
         }
+        else if (x >= pos5.getX() - 20 && y >= pos5.getY() - 20) {
+            System.out.println("go to pos 6");
+            return pos6;
+        }
+        else if (x >= pos3.getX() - 20 && y >= pos3.getY() - 20) {
+            System.out.println("go to pos 4");
+            return pos4;
+        }
+        else if (x >= pos6.getX() - 20 && y >= pos6.getY() - 20) {
+            System.out.println("go to pos 7");
+            return pos7;
+        }
+        else if (x >= pos2.getX() && x < pos1.getX() && y >= pos2.getY()) {
+            System.out.println("go to pos 3");
+            return pos3;
+        }
+        else if (x >= pos7.getX() - 20 && y >= pos7.getY() - 20) {
+            System.out.println("go to pos 8");
+            return pos8;
+        }
+        else if (x >= pos1.getX() - 5 && y >= pos1.getY() - 5 && y < pos2.getY()) {
+            System.out.println("go to pos 2");
+            return pos2;
+        }
+
+
+        else if (x >= pos8.getX() - 20 && y >= pos8.getY() - 20) {
+            System.out.println("go to pos 1");
+            return pos1;
+        }
+
         return newPos;
     }
 
@@ -175,6 +213,7 @@ public class JustinTimb extends TeamRobot implements Droid {
             turnLeft(40);
             back(20);
         }
+        turnLeft(this.getHeading());
     }
 
     public void onHitRobot(HitRobotEvent e) {
