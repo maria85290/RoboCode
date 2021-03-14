@@ -126,37 +126,6 @@ public class JustinTimb extends TeamRobot implements Droid {
         Position pos7 = new Position(roundedOffsetX * 2, roundedOffsetY);
         Position pos8 = new Position(Math.floor(getBattleFieldWidth() / 2), Math.floor(getBattleFieldHeight() / 6));
 
-        System.out.println("X: " + x);
-        System.out.println("Y: " + y);
-        System.out.println("pos6 x: " + pos6.getX());
-        System.out.println("pos6 y: " + pos6.getY());
-        System.out.println("offsetX: " + roundedOffsetX);
-        System.out.println("offsetY: " + roundedOffsetY);
-        System.out.println("offsetX2: " + roundedOffsetX * 2);
-        System.out.println("offsetY2: " + roundedOffsetY * 2);
-        /*
-        if (x == roundedOffsetX && y == roundedOffsetY) {
-            System.out.println("First pos");
-            newPos.setX(this.getX());
-            newPos.setY(getBattleFieldHeight()/2);
-        }
-        else if (x == roundedOffsetX && y == roundedOffsetY * 2){
-            System.out.println("Second pos");
-            newPos.setX(getBattleFieldWidth()/2);
-            newPos.setY(5*getBattleFieldHeight()/6);
-        }
-
-        else if (x >= roundedOffsetX-1 * 2 && y == roundedOffsetY * 2){
-            System.out.println("Third pos");
-            newPos.setX(this.getX());
-            newPos.setY(getBattleFieldHeight()/2);
-        }
-
-        else {
-            System.out.println("Last pos");
-            newPos.setX(getBattleFieldWidth() / 2);
-            newPos.setY(getBattleFieldHeight() / 6);
-        }*/
 
         if (x >= pos4.getX() - 20 && y >= pos4.getY() - 20) {
             System.out.println("go to pos 5");
