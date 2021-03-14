@@ -9,24 +9,21 @@ import robocode.util.Utils;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Esta classe implementa um buddy que será um membro da equipa S.A.
+ */
 
 public class buddys extends TeamRobot{
 
-    private byte scanDirection = 1;
-    private ArrayList<Position> positions = new ArrayList<>();
-    private int num=0;
-    private int time = 0;
-    private Position initial;  // Posição para onde se deve dirigir no inicio
-    private Position posF; // Posição para onde se dirige no final do percurso
+    private ArrayList<Position> positions = new ArrayList<>(); // array com as posições que devem seguir.
+    private int time = 0;     // tempo de espera até começar a rota.
+    private Position initial;  // Posição para onde se deve dirigir no inicio.
+    private Position posF; // Posição para onde se dirige no final do percurso.
 
-    private  boolean receive = false;
-    private  boolean start = false;
-    private String nameL;
+    private  boolean start = false;   // quando está a true significa que o robot teve autoriação do lider para começar
+    private String nameL;  // Nome do lider da equipa
 
 
-    /**
-     * run:  Droid's default behavior
-     */
     public void run() {
 
         System.out.println("[INICIO]");
@@ -35,13 +32,18 @@ public class buddys extends TeamRobot{
             doNothing();
         }
 
-        // Ja todos estão na posição inicial. Recebem autorização para iniciar o percurso.
+        // Ja todos estão na posição inicial.
+        // Recebem autorização para iniciar o percurso.
+
         if (this.start == true) {
             System.out.println("[MSG] Autorizado a fazer o trajeto");
+
+            // Para não iniciarem todos ao mesmo tempo. Espera time iterações.
             for (int i = 0; i < time; i++) {
                 doNothing();
             }
 
+            // Começa a percorrer o trajeto enviado pelo lider.
             for (int j = 0; j < positions.size(); j++) {
                 while (!(getX() == positions.get(j).getX() && getY() == positions.get(j).getY())) {
                     goTo(positions.get(j).getX(), positions.get(j).getY());
@@ -50,6 +52,8 @@ public class buddys extends TeamRobot{
             }
         }
         goTo(getX(), 18);  // Encosta a parede
+
+        //Vai para a posição final.
         goTo(this.posF.getX(), this.posF.getY());
 
     }
@@ -59,7 +63,6 @@ public class buddys extends TeamRobot{
      * onMessageReceived:  What to do when our leader sends a message
      */
     public void onMessageReceived(MessageEvent e) {
-
 
         // Recebem as coordenadas para onde deve ir.
         if (e.getMessage() instanceof Positions) {
@@ -85,10 +88,6 @@ public class buddys extends TeamRobot{
                     a.printStackTrace();
                 }
             }
-
-
-
-            // goTo(40,18);
         }
 
 
@@ -103,6 +102,8 @@ public class buddys extends TeamRobot{
             setBulletColor(c.bulletColor);
         }
 
+       // Recebe confirmação para iniciar a trajetoria.
+
        else if (e.getMessage() instanceof Confirm){
             System.out.println("[MSG] Recebi Confirmação para inciar a trajetoria");
             Confirm c = (Confirm) e.getMessage();
@@ -112,13 +113,14 @@ public class buddys extends TeamRobot{
 
         }
 
+       // Recebe o nome do seu lider
         else  if (e.getMessage() instanceof sendName) {
             System.out.println("[MSG] Recebi nome do Lider");
             sendName n = (sendName) e.getMessage();
 
             this.nameL = n.getName();
 
-            // Enviar o nome do robot
+            // Enviar o seu nome ao lider.
             try {
                 sendMessage(this.nameL, new sendName(getName()));
             } catch (IOException a) {
@@ -129,7 +131,9 @@ public class buddys extends TeamRobot{
     }
 
 
-
+    /**
+     * Função que desloca o robot para a posição (newx, newy)
+     */
 
     public void goTo(double newX, double newY) {
 
@@ -149,6 +153,9 @@ public class buddys extends TeamRobot{
     }
 
 
+    /**
+     * Permite definir o comportamento do robot quando choca.
+     */
 
     public void onHitRobot(HitRobotEvent e) {
         System.out.println("Ups! Colision with another robot! " + e.getName());

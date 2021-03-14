@@ -10,23 +10,22 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Leader's behavior
+ */
+
 public class SA extends TeamRobot {
-    private ArrayList<Position> positions = new ArrayList<>();
-    private int destX;
-    private int destY;
-    private int x;
-    private int y;
-    private  String lastRobot;
+    private ArrayList<Position> positions = new ArrayList<>();  // array de posições;
+
     private boolean ready = false;
-    private int num_ready = 0;
-    private  String[] teammates= new String[4];
-    private int num_team = 0;
-    /**
-     * run:  Leader's default behavior
-     */
+    private int num_ready = 0;  // numero de robos que estão na posição inicial
+
+    private  String[] teammates= new String[4];   // array com o nome dos membros da equipa
+    private int num_team = 0;  // numero de robos que ja enviaram o seu nome ao lider
+
     public void run() {
 
-        System.out.println(this.getName() + " (1)");
+
         // Prepare RobotColors object
         RobotColors c = new RobotColors();
 
@@ -44,7 +43,7 @@ public class SA extends TeamRobot {
         setBulletColor(c.bulletColor);
 
 
-        // Povoar o array posição
+        // Definir as posições da trajetoria.
         Position pos = new Position(100, 100);
         Position pos1 = new Position(300, 100);
         Position pos2 = new Position(300, 280);
@@ -56,7 +55,7 @@ public class SA extends TeamRobot {
         Position pos7 = new Position(550, 450);
         Position pos8 = new Position(650, 100);
 
-        // Adiciona posições pela ordem inversa.
+        // Adiciona posições ao array pela ordem inversa.
         positions.add(0, pos8);
         positions.add(0, pos7);
         positions.add(0, pos6);
@@ -66,15 +65,6 @@ public class SA extends TeamRobot {
         positions.add(0, pos2);
         positions.add(0, pos1);
         positions.add(0, pos);
-
-        System.out.println(positions);
-
-
-        // Posições de inicio dos 4 robos:
-        Position robot1 = new Position(90, 18);
-        Position robot2 = new Position(18, 90 );
-        Position robot3 = new Position(190, 18);
-        Position robot4 = new Position(18, 190);
 
         // Tempos de espera
         int t1 = 60;
@@ -86,6 +76,8 @@ public class SA extends TeamRobot {
         try {
             // Send RobotColors object to our entire team
             broadcastMessage(c);
+
+            // Envia o seu nome aos robôs.
             broadcastMessage(new sendName(this.getName()));
         } catch (IOException ignored) {
         }
@@ -95,27 +87,27 @@ public class SA extends TeamRobot {
             doNothing();
         }
 
-
+        //Envia a todos os elementos da equipa as suas posições e tempos de espera, posição inicial e posição final.
         try {
-            sendMessage(teammates[0], new Positions(positions, t1, robot1, new Position(110,18)));
+            sendMessage(teammates[0], new Positions(positions, t1, new Position(90, 18), new Position(110,18)));
             System.out.println("Coordenadas enviadas ao" + teammates[0]);
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            sendMessage(teammates[1], new Positions(positions, t2, robot2, new Position(170,18)));
+            sendMessage(teammates[1], new Positions(positions, t2,  new Position(18, 90 ), new Position(170,18)));
             System.out.println("Coordenadas enviadas ao" +teammates[1]);
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            sendMessage(teammates[2], new Positions(positions, t3, robot3, new Position(230,18)));
+            sendMessage(teammates[2], new Positions(positions, t3, new Position(190, 18), new Position(230,18)));
             System.out.println("Coordenadas enviadas ao" + teammates[2]);
         } catch (IOException e) {
             e.printStackTrace();
         }
             try {
-                sendMessage(teammates[3], new Positions(positions, t4, robot4, new Position(290,18)));
+                sendMessage(teammates[3], new Positions(positions, t4, new Position(18, 190), new Position(290,18)));
                 System.out.println("Coordenadas enviadas ao" + teammates[3]);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -125,6 +117,8 @@ public class SA extends TeamRobot {
         while (ready==false){
             doNothing();
         }
+
+        //Quando todos ja estão nas suas posições prontos a começar o lider inicia o percurso.
         if (ready == true) {
 
             System.out.println("A iniciar o percurso");
@@ -136,16 +130,23 @@ public class SA extends TeamRobot {
             }
         }
         goTo(getX(), 18);  // Encosta a parede
-        goTo(50,18);
+        goTo(50,18); // Vai para a sua posição final
     }
 
 
+    /**
+     * Permite especificar o seu comportamento ao receber as mensagens.
+     */
     public void onMessageReceived(MessageEvent e) {
 
+        // Recebe confirmação de que o robot esta na sua osição inicial;
         if (e.getMessage() instanceof Confirm){
             Confirm c = (Confirm) e.getMessage();
             num_ready = num_ready +1;
             System.out.println("Recebi uma nova confirmação de posição: " + num_ready);
+
+            // Quando os 4 robos confirmam ja estarem na sua posição o lider manda uma msg a dar ordem para começar.
+
             if (num_ready == 4){
                 this.ready = true;
 
@@ -160,6 +161,8 @@ public class SA extends TeamRobot {
                 System.out.println("Estão todos a postos: " + num_ready);
             }
         }
+
+        // Recebe os nomes dos membros da equipa.
         else  if (e.getMessage() instanceof sendName) {
             System.out.println("[MSG] Recebi nome de um TeamMate");
             sendName n = (sendName) e.getMessage();
@@ -203,6 +206,9 @@ public class SA extends TeamRobot {
         ahead(50);
     }
 
+    /**
+     * Permite especificar as linhas a pintar.
+     */
 
     public void onPaint(Graphics2D g) {
         g.setColor(Color.RED);

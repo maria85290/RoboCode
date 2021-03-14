@@ -2,6 +2,10 @@ package NewRobot;
 
 import java.io.Serializable;
 
+/**
+ * Esta classe permite enviar uma confirmação.
+ */
+
 public class  Confirm  implements Serializable {
 
     private boolean bool = false;
