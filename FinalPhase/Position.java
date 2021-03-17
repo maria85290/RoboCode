@@ -3,7 +3,10 @@ package NewRobot.FinalPhase;
 import java.io.Serializable;
 
 public class Position implements Serializable {
-    public double getX() {
+
+	private static final long serialVersionUID = 1L;
+
+	public double getX() {
         return x;
     }
 

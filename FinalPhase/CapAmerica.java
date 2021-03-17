@@ -4,10 +4,9 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
-import NewRobot.PositionEnemy;
 import NewRobot.RobotColors;
-import NewRobot.sendName;
 import robocode.DeathEvent;
 import robocode.HitRobotEvent;
 import robocode.MessageEvent;
@@ -17,7 +16,7 @@ import robocode.util.Utils;
 
 //TeamLeader
 public class CapAmerica extends TeamRobot {
-	private String[] teammates = new String[1];
+	private String[] teammates = new String[4];
 	boolean peek; // Don't turn if there's a robot there
 	double moveAmount; // How much to move
 
@@ -57,12 +56,11 @@ public class CapAmerica extends TeamRobot {
 			// Send RobotColors object to our entire team
 			broadcastMessage(c);
 			broadcastMessage(new SendName(this.getName()));
-		} catch (IOException ignored) {
-		}
+		} catch (IOException ignored) {}
 
-		/**
-		 * while (num_team != 4) { doNothing(); }
-		 */
+		
+		  while (num_team != 4) { doNothing();}
+		 
 
 		teamsArray = new ArrayList<>(Arrays.asList(teammates));
 
@@ -73,20 +71,17 @@ public class CapAmerica extends TeamRobot {
 		goTo(initial.getX(), initial.getY());
 
 		// mandar posições consoante sitio do lider
-		// informar teammates mais próximos da sua posição (nesta primeira fase apenas
-		// enviar a 2)
+		// informar teammates mais próximos da sua posição (nesta primeira fase apenas enviar a 2)
 		bodyGuardPositions(initial.getX(), initial.getY());
 
 		try {
 			System.out.print("Mandei ao " + teammates[0] + " o seguinte: " + guardCanto1.getX() + " " + guardCanto1.getY());
 			sendMessage(teammates[0], guardCanto1);
-			// sendMessage(teammates[1], guardCanto2);
-		} catch (IOException ignored) {
-		}
+			sendMessage(teammates[1], guardCanto2);
+		} catch (IOException ignored) {}
 
 		// scan por inimigos
 		turnRight(360);
-		System.out.println(teamsArray.size());
 
 		while (!wallsMode) {
 			turnRight(10);
@@ -104,7 +99,7 @@ public class CapAmerica extends TeamRobot {
 		// turnLeft to face a wall.
 		// getHeading() % 90 means the remainder of
 		// getHeading() divided by 90.
-		turnLeft(getHeading() % 90);
+		turnLeft(getHeading( ) % 90);
 		ahead(moveAmount);
 		// Turn the gun to turn right 90 degrees.
 		peek = true;
@@ -128,14 +123,15 @@ public class CapAmerica extends TeamRobot {
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
 		super.onScannedRobot(e);
-		try {
-			// Send enemy name to teammates
-			broadcastMessage(e.getName());
-		} catch (IOException ex) {
-			out.println("Unable to send order: ");
-			ex.printStackTrace(out);
+		if(!teamsArray.contains(e.getName())) {
+			try {
+				// Send enemy name to teammates
+				broadcastMessage(e.getName());
+			} catch (IOException ex) {
+				out.println("Unable to send order: ");
+				ex.printStackTrace(out);
+			}
 		}
-
 		if (wallsMode && !teamsArray.contains(e.getName())) {
 			//TODO: Only fire if somewhat close 
 			fire(2);
@@ -162,6 +158,29 @@ public class CapAmerica extends TeamRobot {
 				ahead(100);
 			}
 		}
+		else {
+			Random r = new Random();
+	        int goRandom = r.nextInt(1);
+	        //move away randomly
+	        //he is behind us so set back a bit
+	        if(e.getBearing() > -90 && e.getBearing() <= 90){
+	            if(goRandom==1){
+	                setTurnRight(45);
+	                back(150);
+	            }else{
+	                setTurnLeft(45);
+	                back(150);
+	            }
+	        }else{
+	            if(goRandom==1){
+	                setTurnRight(45);
+	                ahead(150);
+	            }else{
+	                setTurnLeft(45);
+	                ahead(150);
+	            }
+	        }
+		}
 	}
 
 	// se capAmerica morrer passar liderança a outro teammate, de preferencia o que
@@ -186,7 +205,6 @@ public class CapAmerica extends TeamRobot {
 
 		// Leader (18,18)
 		if (x == 18 && y == 18) {
-			System.out.print("cheguei a posição e vou mudar");
 			guardCanto1 = new Position(40, 90);
 			guardCanto2 = new Position(90, 35);
 		}
