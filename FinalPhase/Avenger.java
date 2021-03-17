@@ -5,9 +5,7 @@ import static robocode.util.Utils.normalRelativeAngleDegrees;
 import java.io.IOException;
 
 import NewRobot.PositionEnemy;
-import NewRobot.PositionTracker;
 import NewRobot.RobotColors;
-import NewRobot.sendName;
 import robocode.MessageEvent;
 import robocode.ScannedRobotEvent;
 import robocode.TeamRobot;
@@ -28,6 +26,7 @@ public class Avenger extends TeamRobot {
         while(!startScanning){
             doNothing();
         }
+        
         while (true) {
             turnGunRight(10); // Scans automatically
         }
@@ -50,17 +49,13 @@ public class Avenger extends TeamRobot {
             double scannedX = getX() + Math.sin(angle) * e.getDistance();
             double scannedY = getY() + Math.cos(angle) * e.getDistance();
 
-            turnGunRight(bearingFromGun);
-
-          
+            turnGunRight(bearingFromGun);         
         }
-
     }
 
 
 
     public void onMessageReceived(MessageEvent e){
-
         if (e.getMessage() instanceof RobotColors) {
 
             RobotColors c = (RobotColors) e.getMessage();
@@ -70,22 +65,21 @@ public class Avenger extends TeamRobot {
             setRadarColor(c.radarColor);
             setScanColor(c.scanColor);
             setBulletColor(c.bulletColor);
-
-        } else  if (e.getMessage() instanceof sendName) {
+        }
+        else if (e.getMessage() instanceof SendName) {
 
             System.out.println("[MSG] Recebi nome do Lider. ");
-            sendName n = (sendName) e.getMessage();
+            SendName n = (SendName) e.getMessage();
 
             this.nameL = n.getName();
 
             // Enviar o nome do robot
             try {
-                sendMessage(this.nameL, new sendName(getName()));
+                sendMessage(this.nameL, new SendName(getName()));
                 System.out.println("Enviei o meu nome. ");
             } catch (IOException a) {
                 a.printStackTrace();
             }
-        
         } else if(e.getMessage() instanceof Position){
             System.out.println("Got Leader Position");
             myPos = (Position) (e.getMessage());
