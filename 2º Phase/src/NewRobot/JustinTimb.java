@@ -1,6 +1,5 @@
 package NewRobot;
 
-import javafx.geometry.Pos;
 import robocode.Droid;
 import robocode.HitRobotEvent;
 import robocode.MessageEvent;

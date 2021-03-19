@@ -1,4 +1,4 @@
-package NewRobot.FinalPhase;
+package NewRobot;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -17,6 +17,9 @@ import robocode.util.Utils;
 //TeamLeader
 public class CapAmerica extends TeamRobot {
 	private String[] teammates = new String[4];
+	private String[] avangers = new String[4];
+	private String[] fastBois = new String[4];
+
 	boolean peek; // Don't turn if there's a robot there
 	double moveAmount; // How much to move
 
@@ -60,24 +63,70 @@ public class CapAmerica extends TeamRobot {
 
 		
 		  while (num_team != 4) { doNothing();}
-		 
+
 
 		teamsArray = new ArrayList<>(Arrays.asList(teammates));
 
+		  int a = 0;
+
+		  // Reconhece quem √© avenger e quem √© fastBoi. Com esta divisi√£o a troca de mensagens torna-se mais simples
+		  for (int i = 0; i<4; i ++){
+		  	if (teammates[i].startsWith("NewRobot.Avenger*")){
+		  		avangers[a]=teammates[i];
+		  		a++;
+			}
+		  	else if (teammates[i].startsWith("NewRobot.FastBoi")){
+				fastBois[a]=teammates[i];
+				a++;
+			}
+
+		  }
+
+		  System.out.println("EQUIPA AVANGERS: " + avangers[0] + " - " +  avangers[1]);
+
 		Position atual = new Position(getX(), getY());
-		// Escolher canto mais prÛximo e deslocar-se para l·
+
+		// Escolher canto mais pr√≥ximo e deslocar-se para l√°
 		int j = findClosestCorner(atual);
 		initial = new Position(cantos.get(j).getX(), cantos.get(j).getY());
 		goTo(initial.getX(), initial.getY());
 
-		// mandar posiÁıes consoante sitio do lider
-		// informar teammates mais prÛximos da sua posiÁ„o (nesta primeira fase apenas enviar a 2)
+		// mandar posi√ß√µes consoante sitio do lider
+		// informar teammates mais pr√≥ximos da sua posiÔøΩÔøΩo (nesta primeira fase apenas enviar a 2)
 		bodyGuardPositions(initial.getX(), initial.getY());
 
+		int q = getQuadrant(initial); // Vai buscar o quadrante em que o lider esta a partir da posi√ß√£o inciial
+		int q1 = 0;
+		int q2 = 0;
+		if (q==1){
+			q1 = 2;
+			q2 = 3;
+		}
+		else if (q==2){
+			q1 = 1;
+			q2 = 4;
+		}
+		else if (q==3){
+			q1 = 1;
+			q2 = 4;
+		}
+		else if (q==4){
+			q1 = 2;
+			q2 = 3;
+		}
+
 		try {
-			System.out.print("Mandei ao " + teammates[0] + " o seguinte: " + guardCanto1.getX() + " " + guardCanto1.getY());
+			System.out.print("BodyGuard " + teammates[0] + " - " + teammates[1] + "; FastBoi" + teammates[2] + " - " + teammates[3]);
 			sendMessage(teammates[0], guardCanto1);
 			sendMessage(teammates[1], guardCanto2);
+
+			//fastBoi
+			sendMessage(teammates[2], new sendRole("fastBoi"));
+			sendMessage(teammates[3], new sendRole("fastBoi"));
+			sendMessage(teammates[2], new sendQuadrant(q1));
+			sendMessage(teammates[3], new sendQuadrant(q2));
+			broadcastMessage(new sendTeam(this.teammates));
+
 		} catch (IOException ignored) {}
 
 		// scan por inimigos
@@ -118,8 +167,29 @@ public class CapAmerica extends TeamRobot {
 		}
 	}
 
+
+
 	/**
-	 * onScannedRobot: Ver se È inimigo, enviar nome do inimigo
+	 * getQuadrant: Retorna o quadrante em que o lider se encontra
+	 */
+	public  int  getQuadrant (Position initial){
+		if (initial.getX()==18 && initial.getY()==18){
+			return 3;
+		}
+		else if (initial.getX()==(18) && initial.getY()==getBattleFieldHeight() - 18){
+			return 2;
+		}
+		else if (initial.getX()==(getBattleFieldWidth() - 18) && initial.getY()==18){
+			return 4;
+		}
+		else if (initial.getX()==(getBattleFieldWidth() - 18) && initial.getY()==getBattleFieldWidth() - 18){
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * onScannedRobot: Ver se ÔøΩ inimigo, enviar nome do inimigo
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
 		super.onScannedRobot(e);
@@ -183,7 +253,7 @@ public class CapAmerica extends TeamRobot {
 		}
 	}
 
-	// se capAmerica morrer passar lideranÁa a outro teammate, de preferencia o que
+	// se capAmerica morrer passar lideranÔøΩa a outro teammate, de preferencia o que
 	// tiver maior energia
 	public void onDeath(DeathEvent event) {
 		System.out.print("To be Implemented");
@@ -244,7 +314,7 @@ public class CapAmerica extends TeamRobot {
 		return Math.sqrt(Math.pow(canto.getX() - atual.getX(), 2) + Math.pow(canto.getY() - atual.getY(), 2));
 	}
 
-	// FunÁ„o de deslocaÁ„o
+	// FunÔøΩÔøΩo de deslocaÔøΩÔøΩo
 	private void goTo(double x, double y) {
 
 		x -= getX();
