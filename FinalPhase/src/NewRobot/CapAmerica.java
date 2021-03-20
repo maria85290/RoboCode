@@ -19,6 +19,8 @@ import robocode.util.Utils;
 //TeamLeader
 public class CapAmerica extends TeamRobot {
 	private String[] teammates = new String[4];
+	private String[] avangers = new String[4];
+	private String[] fastBois = new String[4];
 	boolean peek; // Don't turn if there's a robot there
 	double moveAmount; // How much to move
 
@@ -69,6 +71,24 @@ public class CapAmerica extends TeamRobot {
 
 		teamsArray = new ArrayList<>(Arrays.asList(teammates));
 
+		int a = 0;
+
+		// Reconhece quem é avenger e quem é fastBoi. Com esta divisião a troca de mensagens torna-se mais simples
+		for (int i = 0; i<4; i ++){
+			if (teammates[i].startsWith("NewRobot.Avenger*")){
+				avangers[a]=teammates[i];
+				a++;
+			}
+			else if (teammates[i].startsWith("NewRobot.FastBoi")){
+				fastBois[a]=teammates[i];
+				a++;
+			}
+
+		}
+
+		System.out.println("EQUIPA AVANGERS: " + avangers[0] + " - " +  avangers[1]);
+
+
 		Position atual = new Position(getX(), getY());
 		// Escolher canto mais pr�ximo e deslocar-se para l�
 		int j = findClosestCorner(atual);
@@ -82,6 +102,40 @@ public class CapAmerica extends TeamRobot {
 		// mandar posi��es consoante sitio do lider
 		// informar teammates mais pr�ximos da sua posi��o (nesta primeira fase apenas enviar a 2)
 		bodyGuardPositions(initial.getX(), initial.getY());
+
+		int q = getQuadrant(initial); // Vai buscar o quadrante em que o lider esta a partir da posição inciial
+		int q1 = 0;
+		int q2 = 0;
+		if (q==1){
+			q1 = 2;
+			q2 = 3;
+		}
+		else if (q==2){
+			q1 = 1;
+			q2 = 4;
+		}
+		else if (q==3){
+			q1 = 1;
+			q2 = 4;
+		}
+		else if (q==4){
+			q1 = 2;
+			q2 = 3;
+		}
+
+		try {
+			System.out.print("BodyGuard " + teammates[0] + " - " + teammates[1] + "; FastBoi" + teammates[2] + " - " + teammates[3]);
+			sendMessage(teammates[0], guardCanto1);
+			sendMessage(teammates[1], guardCanto2);
+
+			//fastBoi
+			sendMessage(teammates[2], new SendRole("fastBoi"));
+			sendMessage(teammates[3], new SendRole("fastBoi"));
+			sendMessage(teammates[2], new SendQuadrant(q1));
+			sendMessage(teammates[3], new SendQuadrant(q2));
+			broadcastMessage(new SendTeam(this.teammates));
+
+		} catch (IOException ignored) {}
 
 
 	//	System.out.print("Mandei ao " + teammates[0] + " o seguinte: " + guardCanto1.getX() + " " + guardCanto1.getY());
@@ -131,6 +185,25 @@ public class CapAmerica extends TeamRobot {
 			// Turn to the next wall
 			turnRight(90);
 		}
+	}
+
+	/**
+	 * getQuadrant: Retorna o quadrante em que o lider se encontra
+	 */
+	public  int  getQuadrant (Position initial){
+		if (initial.getX()==18 && initial.getY()==18){
+			return 3;
+		}
+		else if (initial.getX()==(18) && initial.getY()==getBattleFieldHeight() - 18){
+			return 2;
+		}
+		else if (initial.getX()==(getBattleFieldWidth() - 18) && initial.getY()==18){
+			return 4;
+		}
+		else if (initial.getX()==(getBattleFieldWidth() - 18) && initial.getY()==getBattleFieldWidth() - 18){
+			return 1;
+		}
+		return 0;
 	}
 
 	public String getClosestToCorner(Position cornerPos) throws IOException {
