@@ -1,4 +1,4 @@
-package NewRobot.FinalPhase;
+package NewRobot;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import NewRobot.Position;
 import NewRobot.RobotColors;
+import javafx.geometry.Pos;
 import robocode.DeathEvent;
 import robocode.HitRobotEvent;
 import robocode.MessageEvent;
@@ -20,10 +22,13 @@ public class CapAmerica extends TeamRobot {
 	boolean peek; // Don't turn if there's a robot there
 	double moveAmount; // How much to move
 
+	//to activate when it is in a corner (initial pos)
+	boolean start = false;
 	double energy = 200.0;
 	private int num_team = 0;
 	private ArrayList<String> teamsArray;
 	private ArrayList<Position> cantos = new ArrayList<>();
+	private ArrayList<SendPosition> posTeammates = new ArrayList<>();
 
 	Position initial;
 	Position guardCanto1;
@@ -65,20 +70,30 @@ public class CapAmerica extends TeamRobot {
 		teamsArray = new ArrayList<>(Arrays.asList(teammates));
 
 		Position atual = new Position(getX(), getY());
-		// Escolher canto mais próximo e deslocar-se para lá
+		// Escolher canto mais prï¿½ximo e deslocar-se para lï¿½
 		int j = findClosestCorner(atual);
 		initial = new Position(cantos.get(j).getX(), cantos.get(j).getY());
-		goTo(initial.getX(), initial.getY());
+		//goTo(initial.getX(), initial.getY());
 
-		// mandar posições consoante sitio do lider
-		// informar teammates mais próximos da sua posição (nesta primeira fase apenas enviar a 2)
+		while (start == false) {
+			goTo(initial.getX(), initial.getY());
+		}
+
+		// mandar posiï¿½ï¿½es consoante sitio do lider
+		// informar teammates mais prï¿½ximos da sua posiï¿½ï¿½o (nesta primeira fase apenas enviar a 2)
 		bodyGuardPositions(initial.getX(), initial.getY());
 
-		try {
-			System.out.print("Mandei ao " + teammates[0] + " o seguinte: " + guardCanto1.getX() + " " + guardCanto1.getY());
-			sendMessage(teammates[0], guardCanto1);
-			sendMessage(teammates[1], guardCanto2);
-		} catch (IOException ignored) {}
+
+	//	System.out.print("Mandei ao " + teammates[0] + " o seguinte: " + guardCanto1.getX() + " " + guardCanto1.getY());
+		//sendMessage(getClosestToCorner(guardCanto1), guardCanto1);
+		//sendMessage(getClosestToCorner(guardCanto2), guardCanto2);
+		for (String member : teammates) {
+			try {
+				System.out.println("SEND POSITION to " + member);
+			sendMessage(member, "Position");
+			} catch (IOException ignored) {}
+		}
+
 
 		// scan por inimigos
 		turnRight(360);
@@ -118,8 +133,30 @@ public class CapAmerica extends TeamRobot {
 		}
 	}
 
+	public String getClosestToCorner(Position cornerPos) throws IOException {
+		String closestRobot = "";
+		int indexClosest = 0;
+		Double minDist = 1000.0;
+
+		for(int i = 0; i < 4; i++) {
+			SendPosition member = posTeammates.get(i);
+			double dist =
+					Math.sqrt(Math.pow(cornerPos.getX() - member.getPos().getX(), 2) + Math.pow(cornerPos.getY() - member.getPos().getY(),
+					2));
+			if (dist < minDist) {
+				minDist = dist;
+				indexClosest = i;
+				closestRobot = member.getName();
+			}
+
+		}
+		posTeammates.get(indexClosest).setPos(new Position(1000, 1000));
+		return closestRobot;
+
+	}
+
 	/**
-	 * onScannedRobot: Ver se é inimigo, enviar nome do inimigo
+	 * onScannedRobot: Ver se ï¿½ inimigo, enviar nome do inimigo
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
 		super.onScannedRobot(e);
@@ -183,7 +220,7 @@ public class CapAmerica extends TeamRobot {
 		}
 	}
 
-	// se capAmerica morrer passar liderança a outro teammate, de preferencia o que
+	// se capAmerica morrer passar lideranï¿½a a outro teammate, de preferencia o que
 	// tiver maior energia
 	public void onDeath(DeathEvent event) {
 		System.out.print("To be Implemented");
@@ -198,6 +235,27 @@ public class CapAmerica extends TeamRobot {
 			teammates[num_team] = n.getName();
 			System.out.println(teammates[num_team]);
 			num_team++;
+		} else if (e.getMessage() instanceof SendPosition) {
+			SendPosition sp = (SendPosition) e.getMessage();
+			posTeammates.add(sp);
+			System.out.println("RECEIVED POS");
+			if (posTeammates.size() == 4) {
+				try {
+					String guard1 = getClosestToCorner(guardCanto1);
+					String guard2 = getClosestToCorner(guardCanto2);
+					System.out.println("GUARD1: " + guard1 + " GUARD2: " + guard2);
+					SendGuardPos guardPos1= new SendGuardPos("Guard", guardCanto1);
+					SendGuardPos guardPos2= new SendGuardPos("Guard", guardCanto2);
+
+					System.out.println("GUARD 1: " + guard1);
+					sendMessage(guard1, guardPos1);
+					sendMessage(guard2, guardPos2);
+
+				} catch (IOException ioException) {
+					ioException.printStackTrace();
+				}
+
+			}
 		}
 	}
 
@@ -244,12 +302,13 @@ public class CapAmerica extends TeamRobot {
 		return Math.sqrt(Math.pow(canto.getX() - atual.getX(), 2) + Math.pow(canto.getY() - atual.getY(), 2));
 	}
 
-	// Função de deslocação
+	// Funï¿½ï¿½o de deslocaï¿½ï¿½o
 	private void goTo(double x, double y) {
+		double initialX = x;
+		double initialY = y;
 
 		x -= getX();
 		y -= getY();
-
 		double angleToTarget = Math.atan2(x, y);
 
 		double targetAngle = Utils.normalRelativeAngle(angleToTarget - getHeadingRadians());
@@ -264,6 +323,11 @@ public class CapAmerica extends TeamRobot {
 			ahead(distance);
 		} else {
 			back(distance);
+		}
+		System.out.println("FLAG " + start + " " + x + ' ' + getX() + " " + y + ' ' + getY());
+		if (getX() >= initialX - 5 && getX() <= initialX + 5 && getY() >= initialY - 5 && getY() <= initialY + 5){
+			System.out.println("HERE I AM");
+			start = true;
 		}
 	}
 }

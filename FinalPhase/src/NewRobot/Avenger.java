@@ -1,4 +1,5 @@
-package NewRobot.FinalPhase;
+package NewRobot;
+
 
 import static robocode.util.Utils.normalRelativeAngleDegrees;
 
@@ -21,8 +22,9 @@ public class Avenger extends TeamRobot {
 	private String nameL;
 	public boolean isDead = false;
 	public boolean startScanning = false;
-	Position myPos;
+    Position myPos;
 	boolean guard = false;
+	boolean inGuardPos = false;
 	boolean movingForward;
 	private String enemyName;
 	int dist = 50; // distance to move when we're hit
@@ -137,11 +139,32 @@ public class Avenger extends TeamRobot {
 			while (!(this.getX() == myPos.getX() && this.getY() == myPos.getY())) {
 				goTo(myPos.getX(), myPos.getY());
 			}
+		} else if (e.getMessage().equals("Position")){
+			try {
+				System.out.println("Sending pos!");;
+				sendMessage("NewRobot.CapAmerica", new SendPosition(this.getName(), new Position(getX(), getY())));
+			} catch (IOException ioException) {
+				ioException.printStackTrace();
+			}
 		} else if (e.getMessage() instanceof String) {
 			System.out.println("Got enemy Pos");
 			enemyName = (String) (e.getMessage());
 
 			startScanning = true;
+
+		} else if (e.getMessage() instanceof SendGuardPos) {
+			System.out.println("Im a guard!!");
+			SendGuardPos guardPos = (SendGuardPos) e.getMessage();
+			double x = guardPos.getPos().getX();
+			double y = guardPos.getPos().getY();
+			guard = true;
+			while (inGuardPos == false) {
+				goTo(x, y);
+				if (getX() > x - 5 && getX() < x + 5 && getY() > y - 5 && getY() < y + 5){
+					System.out.println("THERE ALREADY");
+					inGuardPos = true;
+				}
+			}
 
 		}
 	}
@@ -153,7 +176,7 @@ public class Avenger extends TeamRobot {
         //move away randomly
         //he is behind us so set back a bit
         if(e.getBearing() > -90 && e.getBearing() <= 90){
-            if(goRandom==1){
+            if(goRandom == 1){
                 setTurnRight(45);
                 back(150);
             }else{
@@ -161,7 +184,7 @@ public class Avenger extends TeamRobot {
                 back(150);
             }
         }else{
-            if(goRandom==1){
+            if(goRandom == 1){
                 setTurnRight(45);
                 ahead(150);
             }else{

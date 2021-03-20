@@ -1,4 +1,4 @@
-package NewRobot.FinalPhase;
+package NewRobot;
 
 import java.awt.Color;
 
