@@ -3,51 +3,44 @@ package NewRobot;
 
 import static robocode.util.Utils.normalRelativeAngleDegrees;
 
+import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
-import NewRobot.RobotColors;
-import robocode.HitByBulletEvent;
-import robocode.HitRobotEvent;
-import robocode.HitWallEvent;
-import robocode.MessageEvent;
-import robocode.ScannedRobotEvent;
-import robocode.TeamRobot;
-import robocode.TurnCompleteCondition;
+import robocode.*;
 import robocode.util.Utils;
+
+@SuppressWarnings("Duplicates")
+
 
 //Teammate
 public class Avenger extends TeamRobot {
 
 	private String nameL;
-	public boolean isDead = false;
-	public boolean startScanning = false;
-    Position myPos;
-	boolean guard = false;
-	boolean inGuardPos = false;
-	boolean movingForward;
 	private String enemyName;
-	int dist = 50; // distance to move when we're hit
-	
+
+	private boolean afterGuard = false;
+	private boolean startScanning = false;
+	private boolean guard = false;
+	private boolean movingForward;
+
+	//Bodyguard position
+    Position myPos;
+
+	// distance to move when we're hit
+	int dist = 50;
+
+	//Teammates list
+	private ArrayList<String> teamsArray = new ArrayList<>();
+
 	public void run() {
+
+		//Set Robot Colors
+		this.setColors(Color.BLUE,Color.RED,Color.RED,Color.WHITE,Color.ORANGE);
+
 		while (true) {
-			// Comportamento fastBoi
-			if (!guard) {
-				setAhead(40000);
-				movingForward = true;
-				setTurnRight(90);
-
-				waitFor(new TurnCompleteCondition(this));
-
-				setTurnLeft(180);
-				waitFor(new TurnCompleteCondition(this));
-				setTurnRight(180);
-				waitFor(new TurnCompleteCondition(this));
-			}
-			// guard behaviour
-			else {
 				turnGunRight(10); // Scans automatically
-			}
 		}
 
 	}
@@ -55,155 +48,179 @@ public class Avenger extends TeamRobot {
 	public void onScannedRobot(ScannedRobotEvent e) {
 		super.onScannedRobot(e);
 
+		//If the enemy scanned is the enemy sent from Leader CapAmerica
 		if ((e.getName().equals(enemyName))) {
-			System.out.println("Found enemy whos names is" + e.getName());
-			if (!guard) {
-				setTurnRight(e.getBearing());
-				// if we've turned toward our enemy...
-				if (Math.abs(getTurnRemaining()) < 10) {
 
-					// move a little closer
-					if (e.getDistance() > 200) {
-						ahead(e.getDistance() / 2);
-						fire(2);
-					}
-					// but not too close
-					if (e.getDistance() < 100) {
-						back(e.getDistance() * 2);
-					}
-				}
-				// lock our radar onto our target
-				setTurnRadarRight(getHeading() - getRadarHeading() + e.getBearing());
-			} else {
-				// Calculate exact location of the robot
+			System.out.println("Got enemys name" + e.getName());
+
+			double absoluteBearing = getHeading() + e.getBearing();
+			double bearingFromGun = normalRelativeAngleDegrees(absoluteBearing - getGunHeading());
+
+			turnGunRight(bearingFromGun);
+
+			//get the distance of the scanned robot
+			manageFirePower(e);
+
+		}
+
+		if(!teamsArray.contains(e.getName())){
+
+			System.out.println("Scanned enemy name: " + e.getName());
+
+			//If Avneger is in guard mode
+			if(guard) {
+
 				double absoluteBearing = getHeading() + e.getBearing();
 				double bearingFromGun = normalRelativeAngleDegrees(absoluteBearing - getGunHeading());
 
-				// If it's close enough, fire!
-				if (Math.abs(bearingFromGun) <= 10) {
-					turnGunRight(bearingFromGun);
-					// We check gun heat here, because calling fire()
-					// uses a turn, which could cause us to lose track
-					// of the other robot.
-					if (getGunHeat() == 0 && e.getDistance() < 50 && getEnergy() > 50) {
-						fire(3);
-					} // otherwise, fire 1.
-					else {
-						fire(1);
+				turnGunRight(bearingFromGun);
+				manageFirePower(e);
+
+				//If Avenger went rogue : after Leader turns into walls mode
+			} else if(afterGuard){
+
+				setTurnRight(e.getBearing());
+				// if we've turned toward our enemy...
+				if (Math.abs(getTurnRemaining()) < 10) {
+					// move a little closer
+					if (e.getDistance() > 200) {
+						setAhead(e.getDistance() / 2);
 					}
-				} // otherwise just set the gun to turn.
-					// Note: This will have no effect until we call scan()
-				else {
-					turnGunRight(bearingFromGun);
+					// but not too close
+					if (e.getDistance() < 100) {
+						setBack(e.getDistance() * 2);
+					}
 				}
-				// Generates another scan event if we see a robot.
-				// We only need to call this if the gun (and therefore radar)
-				// are not turning. Otherwise, scan is called automatically.
-				if (bearingFromGun == 0) {
-					scan();
-				}
+					//get the distance of the scanned robot
+				manageFirePower(e);
+
+				// lock our radar onto our target
+				setTurnRadarRight(getHeading() - getRadarHeading() + e.getBearing());
+
 			}
 		}
+
+	}
+
+	private void manageFirePower(ScannedRobotEvent e) {
+		//get the distance of the scanned robot
+		double distance = e.getDistance();
+
+		//Managing power according to distance to enemy
+		if (distance > 800)
+			fire(5);
+		else if (distance > 600 && distance <= 800)
+			fire(4);
+		else if (distance > 400 && distance <= 600)
+			fire(3);
+		else if (distance > 200 && distance <= 400)
+			fire(2);
+		else if (distance < 200)
+			fire(1);
 	}
 
 	public void onMessageReceived(MessageEvent e) {
-		if (e.getMessage() instanceof RobotColors) {
 
-			RobotColors c = (RobotColors) e.getMessage();
+		if (e.getMessage() instanceof SendName) {
 
-			setBodyColor(c.bodyColor);
-			setGunColor(c.gunColor);
-			setRadarColor(c.radarColor);
-			setScanColor(c.scanColor);
-			setBulletColor(c.bulletColor);
-		} else if (e.getMessage() instanceof SendName) {
+			System.out.println("[MSG] Got Leaders name. ");
 
-			System.out.println("[MSG] Recebi nome do Lider. ");
 			SendName n = (SendName) e.getMessage();
 
 			this.nameL = n.getName();
 
-			// Enviar o nome do robot
+			// Respond with my own name
 			try {
 				sendMessage(this.nameL, new SendName(getName()));
-				System.out.println("Enviei o meu nome. ");
 			} catch (IOException a) {
 				a.printStackTrace();
 			}
+
 		} else if (e.getMessage() instanceof Position) {
-			System.out.println("Got Leader Position");
+
+			System.out.println("[MSG] Got my bodyguard position.");
+
 			myPos = (Position) (e.getMessage());
 
+			//Guard mode ON
 			guard = true;
 
 			while (!(this.getX() == myPos.getX() && this.getY() == myPos.getY())) {
 				goTo(myPos.getX(), myPos.getY());
 			}
-		} else if (e.getMessage().equals("Position")){
-			try {
-				System.out.println("Sending pos!");;
-				sendMessage("NewRobot.CapAmerica", new SendPosition(this.getName(), new Position(getX(), getY())));
-			} catch (IOException ioException) {
-				ioException.printStackTrace();
-			}
+
 		} else if (e.getMessage() instanceof String) {
-			System.out.println("Got enemy Pos");
+
+			System.out.println("[MSG] Got enemy's name.");
+
 			enemyName = (String) (e.getMessage());
 
+			//Start looking for my enemy
 			startScanning = true;
 
-		} else if (e.getMessage() instanceof SendGuardPos) {
-			System.out.println("Im a guard!!");
-			SendGuardPos guardPos = (SendGuardPos) e.getMessage();
-			double x = guardPos.getPos().getX();
-			double y = guardPos.getPos().getY();
-			guard = true;
-			while (inGuardPos == false) {
-				goTo(x, y);
-				if (getX() > x - 5 && getX() < x + 5 && getY() > y - 5 && getY() < y + 5){
-					System.out.println("THERE ALREADY");
-					inGuardPos = true;
-				}
-			}
+		// Receives flag to know when leader is in WallsMode
+		} else if(e.getMessage() instanceof Boolean){
 
+			guard=false;
+			afterGuard = true;
+
+		//Got my teammate's name. My name is included on the list.
+		} else if(e.getMessage() instanceof ArrayList){
+
+			teamsArray = (ArrayList) e.getMessage();
+
+			//Adds the name of the leader to my teammates
+			teamsArray.add(nameL);
 		}
 	}
 
 	
 	public void onHitRobot(HitRobotEvent e){
-        Random r = new Random();
-        int goRandom = r.nextInt(1);
-        //move away randomly
-        //he is behind us so set back a bit
-        if(e.getBearing() > -90 && e.getBearing() <= 90){
-            if(goRandom == 1){
-                setTurnRight(45);
-                back(150);
-            }else{
-                setTurnLeft(45);
-                back(150);
-            }
-        }else{
-            if(goRandom == 1){
-                setTurnRight(45);
-                ahead(150);
-            }else{
-                setTurnLeft(45);
-                ahead(150);
-            }
-        }
+
+		//If on guard mode, get back into bodyguard position.
+		if(guard){
+
+			while(!(this.getX() == myPos.getX() && this.getY() == myPos.getY())) {
+				goTo(myPos.getX(), myPos.getY());
+			}
+
+		}else {
+			Random r = new Random();
+			int goRandom = r.nextInt(1);
+			//move away randomly
+			//he is behind us so set back a bit
+			if(e.getBearing() > -90 && e.getBearing() <= 90){
+				if(goRandom == 1){
+					setTurnRight(45);
+					back(150);
+				}else{
+					setTurnLeft(45);
+					back(150);
+				}
+			}else{
+				if(goRandom == 1){
+					setTurnRight(45);
+					ahead(150);
+				}else{
+					setTurnLeft(45);
+					ahead(150);
+				}
+			}
+		}
     }
-	
-	/**
-	 * onHitWall: Handle collision with wall.
-	 */
+
+	public void onRobotDeath(RobotDeathEvent e){
+
+		//If my initial enemy dies, start scanning
+		if(e.getName().equals(enemyName)){
+			scan();
+		}
+	}
+
 	public void onHitWall(HitWallEvent e) {
 		reverseDirection();
 	}
 
-	/**
-	 * reverseDirection: Switch from ahead to back & vice versa
-	 */
 	public void reverseDirection() {
 		if (movingForward) {
 			setBack(40000);
@@ -213,9 +230,7 @@ public class Avenger extends TeamRobot {
 			movingForward = true;
 		}
 	}
-	/**
-	 * onHitByBullet:  Turn perpendicular to the bullet, and move a bit.
-	 */
+
 	public void onHitByBullet(HitByBulletEvent e) {
 		if(!guard) {
 			turnRight(normalRelativeAngleDegrees(90 - (getHeading() - e.getHeading())));
@@ -248,4 +263,5 @@ public class Avenger extends TeamRobot {
 			back(distance);
 		}
 	}
+
 }
