@@ -1,7 +1,7 @@
 # RoboCode
 
 ## Phase 1
-A primeira fase deste projeto, como já foi referido, envolve a conceção e implementação  de  um  odómetro, para medir  a  distância  percorrida por um robô em cada episódio round de uma batalha battle, e a implementação de técnicas de planeamento de trajetórias para circum-navegação de 3 obstáculos. 
+A primeira fase deste projeto envolve a conceção e implementação  de  um  odómetro, para medir  a  distância  percorrida por um robô em cada ronda de uma batalha, bem como a implementação de técnicas de planeamento de trajetórias para circum-navegação de 3 obstáculos. 
 ### Odómetro
 O cálculo da distância é feita através da Distância Euclidiana. Sabendo a posição anterior e atual do robô é possível ir atualizando este valor. 
 ### Circum Navegação
