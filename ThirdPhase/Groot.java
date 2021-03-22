@@ -1,4 +1,4 @@
-package ThirdPhase;
+package NewRobot;
 
 import robocode.*;
 import robocode.util.Utils;

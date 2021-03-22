@@ -1,4 +1,4 @@
-package ThirdPhase;
+package NewRobot;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -81,7 +81,7 @@ public class CaptainAmerica extends TeamRobot{
 
         //Get indexes for the avengers teammates
         for(int y=0; y < 4; y ++){
-            if(teammates[y].startsWith("ThirdPhase.Avenger")){
+            if(teammates[y].startsWith("NewRobot.Avenger")){
                 teamAvengIndex.add(y);
             }
         }
@@ -90,7 +90,7 @@ public class CaptainAmerica extends TeamRobot{
             //Broadcast message of the teammates list
             broadcastMessage(teamsArray);
 
-            //Send avengers position for bodyguards mode
+            //Send avengers positio for bodyguards mode
             sendMessage(teammates[teamAvengIndex.get(0)], guardCanto1);
             sendMessage(teammates[teamAvengIndex.get(1)], guardCanto2);
             System.out.println("Sent pos " +"(" + guardCanto1.getX() + "," + guardCanto1.getY() + ")" + "to " + teammates[teamAvengIndex.get(0)]);
@@ -240,7 +240,7 @@ public class CaptainAmerica extends TeamRobot{
     public void onRobotDeath(RobotDeathEvent e){
 
         //On Avengers death
-        if(e.getName().startsWith("ThirdPhase.Avenger")){
+        if(e.getName().startsWith("NewRobot.Avenger")){
 
             System.out.println("Avenger died.");
 
