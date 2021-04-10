@@ -114,15 +114,15 @@ public class buddys extends TeamRobot{
         }
 
        // Recebe o nome do seu lider
-        else  if (e.getMessage() instanceof sendName) {
+        else  if (e.getMessage() instanceof SendName) {
             System.out.println("[MSG] Recebi nome do Lider");
-            sendName n = (sendName) e.getMessage();
+            SendName n = (SendName) e.getMessage();
 
             this.nameL = n.getName();
 
             // Enviar o seu nome ao lider.
             try {
-                sendMessage(this.nameL, new sendName(getName()));
+                sendMessage(this.nameL, new SendName(getName()));
             } catch (IOException a) {
                 a.printStackTrace();
             }

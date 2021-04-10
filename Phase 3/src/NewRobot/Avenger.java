@@ -1,4 +1,4 @@
-package ThirdPhase;
+package NewRobot;
 
 
 import static robocode.util.Utils.normalRelativeAngleDegrees;

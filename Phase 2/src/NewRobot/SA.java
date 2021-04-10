@@ -1,6 +1,5 @@
 package NewRobot;
 
-import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.MessageEvent;
 import robocode.TeamRobot;
@@ -78,7 +77,7 @@ public class SA extends TeamRobot {
             broadcastMessage(c);
 
             // Envia o seu nome aos robôs.
-            broadcastMessage(new sendName(this.getName()));
+            broadcastMessage(new SendName(this.getName()));
         } catch (IOException ignored) {
         }
 
@@ -163,9 +162,9 @@ public class SA extends TeamRobot {
         }
 
         // Recebe os nomes dos membros da equipa.
-        else  if (e.getMessage() instanceof sendName) {
+        else  if (e.getMessage() instanceof SendName) {
             System.out.println("[MSG] Recebi nome de um TeamMate");
-            sendName n = (sendName) e.getMessage();
+            SendName n = (SendName) e.getMessage();
             teammates[num_team]=n.getName();
             System.out.println(teammates[num_team]);
             num_team ++;

@@ -59,7 +59,7 @@ public class TrackerLeader extends TeamRobot {
         try {
             // Send RobotColors object to our entire team
             broadcastMessage(c);
-            broadcastMessage(new sendName(this.getName()));
+            broadcastMessage(new SendName(this.getName()));
         } catch (IOException ignored) {}
 
 /*        try {
@@ -144,10 +144,10 @@ public class TrackerLeader extends TeamRobot {
 
     public void onMessageReceived(MessageEvent e){
 
-        if (e.getMessage() instanceof sendName) {
+        if (e.getMessage() instanceof SendName) {
 
             System.out.println("[MSG] Recebi nome de um TeamMate. ");
-            sendName n = (sendName) e.getMessage();
+            SendName n = (SendName) e.getMessage();
             teammates[num_team] = n.getName();
             System.out.println(teammates[num_team]);
             num_team++;

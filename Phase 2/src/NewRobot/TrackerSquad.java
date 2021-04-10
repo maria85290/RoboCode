@@ -117,16 +117,16 @@ public class TrackerSquad extends TeamRobot{
             setScanColor(c.scanColor);
             setBulletColor(c.bulletColor);
 
-        } else  if (e.getMessage() instanceof sendName) {
+        } else  if (e.getMessage() instanceof SendName) {
 
             System.out.println("[MSG] Recebi nome do Lider. ");
-            sendName n = (sendName) e.getMessage();
+            SendName n = (SendName) e.getMessage();
 
             this.nameL = n.getName();
 
             // Enviar o nome do robot
             try {
-                sendMessage(this.nameL, new sendName(getName()));
+                sendMessage(this.nameL, new SendName(getName()));
                 System.out.println("Enviei o meu nome. ");
             } catch (IOException a) {
                 a.printStackTrace();

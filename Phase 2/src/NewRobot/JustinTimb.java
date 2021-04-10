@@ -13,6 +13,8 @@ import java.util.Random;
 public class JustinTimb extends TeamRobot implements Droid {
     private double offsetX;
     private double offsetY;
+
+    private String nameL;  // Nome do lider da equipa
     /**
      * run:  Droid's default behavior
      */
@@ -42,32 +44,33 @@ public class JustinTimb extends TeamRobot implements Droid {
             double danceAngle = o.getRotation();
 
 
-                while (this.getX() != o.getX() && this.getY() != o.getY()) {
-                    goTo(o.getX(), o.getY());
-                }
+            while (this.getX() != o.getX() && this.getY() != o.getY()) {
+                goTo(o.getX(), o.getY());
+            }
 
-                if (this.getHeading() > 180) {
-                    this.turnRight(360 - this.getHeading() - danceAngle / 2);
-                } else {
-                    this.turnLeft(this.getHeading() + danceAngle / 2);
-                }
+            if (this.getHeading() > 180) {
+                this.turnRight(360 - this.getHeading() - danceAngle / 2);
+            } else {
+                this.turnLeft(this.getHeading() + danceAngle / 2);
+            }
 
-                while (this.getX() != o.getX() && this.getY() != o.getY()) {
-                    goTo(o.getX(), o.getY());
-                }
+            while (this.getX() != o.getX() && this.getY() != o.getY()) {
+                goTo(o.getX(), o.getY());
+            }
 
-                for (int j = 0; j < 20; j++) {
-                    doNothing();
-                }
+            for (int j = 0; j < 20; j++) {
+                doNothing();
+            }
 
-                DanceOrder order = new DanceOrder(this.getX(), this.getY(), o.getRotation());
-                try {
-                    //inform team lider the this robot is ready to dance
-                    sendMessage("NewRobot.NSYNC", order);
+            DanceOrder order = new DanceOrder(this.getX(), this.getY(), o.getRotation());
+            try {
+                //inform team lider the this robot is ready to dance
+                System.out.println("SENDING I'M ready");;
+                sendMessage("NewRobot.NSYNC", order);
 
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
 
 
 
@@ -96,6 +99,21 @@ public class JustinTimb extends TeamRobot implements Droid {
                 ioException.printStackTrace();
             }
 
+        }
+
+        // Recebe o nome do seu lider
+        else  if (e.getMessage() instanceof SendName) {
+            System.out.println("[MSG] Recebi nome do Lider");
+            SendName n = (SendName) e.getMessage();
+
+            this.nameL = n.getName();
+
+            // Enviar o seu nome ao lider.
+            try {
+                sendMessage(this.nameL, new SendName(getName()));
+            } catch (IOException a) {
+                a.printStackTrace();
+            }
         }
 
     }
